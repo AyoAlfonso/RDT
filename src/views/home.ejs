@@ -1,0 +1,226 @@
+<html>
+    <head>
+        <title>Res.io Drone Dashboard v1.0.1</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="/vendor/bootstrap/css/bootstrap.min.css"
+        />
+
+        <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    </head>
+
+    <body>
+        <div class="limiter">
+            <div class="container-table100">
+                <div class="wrap-table100">
+                    <div class="table100 ver1 m-b-110">
+                        <div class="table100-head">
+                            <table>
+                                <thead>
+                                    <tr class="row100 head">
+                                        <th class="cell100 column4">
+                                            Drone Num
+                                        </th>
+                                        <th class="cell100 column4">
+                                            Distance Moved
+                                        </th>
+                                        <th class="cell100 column4">
+                                            Updated At
+                                        </th>
+                                        <th class="cell100 column4">
+                                            Location
+                                        </th>
+                                        <th class="cell100 column4">Status</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
+                        <div class="table100-body js-pscroll">
+                            <table id="droneTable">
+                                <tbody>
+                                    <td
+                                        style="padding: 20px;"
+                                        class="cell100"
+                                        column4
+                                    >
+                                        Loading...
+                                    </td>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/simplesnackbarjs@latest/dist/simpleSnackbar.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/simplesnackbarjs@latest/dist/simpleSnackbar.min.js"></script>
+        <script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
+        <script src="/vendor/utils/geoUtils.js"></script>
+
+        <script>
+            var client = new WebSocket("ws://localhost:5000/", "drone-protocol")
+            client.onerror = function(e) {
+                console.error("Connection Error", e)
+            }
+
+            client.onopen = function() {
+                console.log("WebSocket Client Connected ")
+                /*WE ARE NOT SENDING ANY DATA TO SERVER IN THIS IMPLEMENTATION*/
+            }
+            client.onclose = function() {
+                console.info("echo-protocol Client Closed")
+            }
+            client.onmessage = function(e) {
+                if (typeof e.data === "string") {
+                    let data = JSON.parse(e.data)
+                    let data_drone = []
+                    Object.keys(data).filter(key => {
+                        if (key != "oldGroup") {
+                            let datum = {
+                                deviceID: key,
+                                value: data[key].value[0],
+                            }
+                            return data_drone.push(datum)
+                        }
+                    })
+                    generateTable(data_drone)
+                }
+            }
+
+            function generateTable(data) {
+                if (localStorage.length < 1) {
+                    localStorage.removeItem("drone_data")
+                    localStorage.setItem("drone_data", JSON.stringify(data))
+                }
+                var localDroneData = localStorage.getItem("drone_data")
+                localDroneData = JSON.parse(localDroneData)
+
+                let tracker = {}
+                let oldDroneTracker = {}
+                data.forEach(basNew => {
+                    localDroneData.forEach(basCompareOld => {
+                        if (basNew.deviceID == basCompareOld.deviceID) {
+                            tracker[basNew.deviceID] = basNew.deviceID
+                        }
+                    })
+                })
+
+                localDroneData.forEach(drone_data => {
+                    if (!tracker[drone_data.deviceID]) {
+                        onDroneLeaveFleet(drone_data.deviceID)
+                    }
+                })
+
+                localDroneData.forEach(basCompareOld => {
+                    data.forEach(basNew => {
+                        if (basCompareOld.deviceID == basNew.deviceID) {
+                            oldDroneTracker[basCompareOld.deviceID] =
+                                basCompareOld.deviceID
+                        }
+                    })
+                })
+
+                data.forEach(drone_data => {
+                    if (!oldDroneTracker[drone_data.deviceID]) {
+                        onDroneJoinFleet(drone_data.deviceID)
+                    }
+                })
+
+                localStorage.removeItem("drone_data")
+                localStorage.setItem("drone_data", JSON.stringify(data))
+
+                function onDroneLeaveFleet(lostDeviceID) {
+                    new simpleSnackbar(`${lostDeviceID} left fleet`, {
+                        type: "info",
+                    }).show()
+                }
+
+                function onDroneJoinFleet(foundDeviceID) {
+                    new simpleSnackbar(`${foundDeviceID} joins fleet`, {
+                        type: "success",
+                    }).show()
+                }
+
+                let tableHeaderRowCount = 0
+                var oldTable = document.getElementById("droneTable")
+
+                var oldRowCount = oldTable.rows.length
+                for (var i = tableHeaderRowCount; i < oldRowCount; i++) {
+                    oldTable.deleteRow(tableHeaderRowCount)
+                }
+                data.forEach(drone => {
+                    let meetingPointLat = "51.515419"
+                    let meetingPointLong = "-0.141099"
+
+                    let meetingPoint = new LatLng(
+                        meetingPointLat,
+                        meetingPointLong
+                    )
+
+                    function LatLng(lat, lng) {
+                        this._lat = parseFloat(lat)
+                        this._lng = parseFloat(lng)
+                    }
+
+                    let distance = getDistanceFromLatLonInKm(
+                        meetingPoint._lat,
+                        meetingPoint._lng,
+                        drone.value.lat,
+                        drone.value.lng
+                    )
+                    let state = Math.round(distance) < 1 ? "idle" : "online"
+                    let device = {
+                        distance: distance,
+                        time: new Date().toISOString().split("T"),
+                        deviceState: state,
+                    }
+
+                    var table = document.getElementById("droneTable")
+                    var row = table.insertRow(drone.deviceID)
+                    var cell1 = row.insertCell(0)
+                    var cell2 = row.insertCell(1)
+                    var cell3 = row.insertCell(2)
+                    var cell4 = row.insertCell(3)
+                    var cell5 = row.insertCell(4)
+                    cell1.innerHTML =
+                        "<td class=cell100 column4> " + drone.deviceID + "</td>"
+                    cell1.className = "cell100 column4"
+                    cell2.innerHTML =
+                        "<td class='cell100 column4'> " +
+                        device.distance +
+                        "</td>"
+                    cell2.className = "cell100 column4"
+                    cell3.innerHTML =
+                        "<td class='cell100 column4'> " +
+                        device.time[1] +
+                        "</td>"
+                    cell3.className = "cell100 column4"
+                    cell4.innerHTML =
+                        "<td class='cell100 column4'> " +
+                        "@" +
+                        drone.value.lat.toFixed(3) +
+                        "," +
+                        drone.value.lng.toFixed(3) +
+                        "</td>"
+                    cell4.className = "cell100 column4"
+                    cell5.innerHTML =
+                        "<td class='cell100 column4'> " +
+                        device.deviceState +
+                        "</td>"
+                    cell5.className =
+                        device.deviceState == "online"
+                            ? "cell100 column5online"
+                            : "cell100 column5offline"
+                })
+            }
+        </script>
+    </body>
+</html>
