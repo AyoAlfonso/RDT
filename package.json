@@ -1,0 +1,50 @@
+{
+  "name": "Balena-drones",
+  "version": "1.0.0",
+  "description": "A Real-Time Drone Tracking System ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --trace-warnings server.js",
+    "start-dev": "nodemon --trace-warnings server.js",
+    "test": "mocha --exit",
+    "precommit": "yarn test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AyoAlfonso/nomane.git"
+  },
+  "author": "Ayo Alfonso",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AyoAlfonso/nomane/issues"
+  },
+  "homepage": "https://github.com/AyoAlfonso/nomane#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "cron": "^1.4.1",
+    "dotenv": "^6.0.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "jsonwebtoken": "^8.3.0",
+    "memory-cache": "^0.2.0",
+    "websocket": "^1.0.28"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "editorconfig-checker": "^3.0.3",
+    "eslint": "^5.6.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^1.19.1"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "it"
+    ]
+  }
+}
