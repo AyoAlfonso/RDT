@@ -62,20 +62,19 @@ Setup hot reload [app automatically restarts on change]
 - Eslint Mocha & API component Tests
 
 ## How To Run The App
+Using node/8.16.2
 
 `yarn install` to create our node_modules folder
-Instal mocha globally
+Instal mocha globally if you do not already have it installed
 
 Change `.env_example` to `.env`
-Run the `yarn build` to export js into folder called lib with babel
-Run `yarn lint` to lint test what we have in the lib
 Run the tests with `yarn test`
 Run the below docker commands
 
 `docker build -t resindrone .`
 `docker run -p 4500:4500 -p 5000:5000 resindrone`
 
-Build context to Docker daemon is 56.05MB [well trimmed]
+Build context to Docker daemon is 49.73MB [well trimmed]
 Go to http://0.0.0.0:4500/admin/home and log in with password: **resinadmin**
 
 Trade offs 

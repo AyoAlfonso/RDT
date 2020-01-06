@@ -23,24 +23,6 @@ let httpServerAddr = {
 
 client.connect(`ws://${httpServerAddr.address}:${httpServerAddr.socket}/`, 'drone-protocol');
 
-/*Testing
-1. Test Cronjob function
-    a. Test sendDroneData() for each drone data to send drone data objects
-    b. Test sent connection data @ connection.sendUTF()
-    c. Run Cronjob function droneCronJob()
-
-2. Test Routes anonymous functions
-    a. '/'
-    b. 'admin/home'
-    c. 'login'
-    d. 'logout'
-
-3. Test views
-    a. (HOME) Functions | Recieving WebSocket func | generateTable | getDistanceFromLatLonInKm
-    b. (HOME) data incoming
-    c. (LOGIN) data
-*/
-
 function closeConnections(){
     stopServer()
 }
