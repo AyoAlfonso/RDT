@@ -9,3 +9,5 @@ before_script:
   - npm install
 script:
   - mocha test --exit
+env:
+  - ADMIN_PASS=resinadmin
