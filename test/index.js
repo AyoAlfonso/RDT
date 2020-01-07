@@ -42,7 +42,7 @@ describe('Initiating Socket Component...', () => {
 
 describe('Testing All express routes', () => {
 
-    describe('/GET - Landing on the welcome page', () => {
+    describe('Landing on the welcome page', () => {
         it('should respond with rendering data', function (done) {
             chai.request.agent(appServer)
               .get('/')

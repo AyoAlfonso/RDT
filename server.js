@@ -4,14 +4,12 @@ const cron = require('./src/cron/startJob');
 const routes = require('./src/routes/index');
 const adminRoute = require('./src/routes/admin');
 const WebSocketServer = require('websocket').server;
-const cors = require('cors');
 const server = require('http').createServer();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const keys = require('./keys').config;
 
 require('dotenv').config();
-app.use(cors());
 
 app.set('port', (keys.HTTP_SERVER.Port || 4500));
 
