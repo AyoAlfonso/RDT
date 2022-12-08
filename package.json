@@ -25,7 +25,7 @@
     "cron": "^1.4.1",
     "dotenv": "^6.0.0",
     "ejs": "^2.6.1",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "express-session": "^1.15.6",
     "jsonwebtoken": "^8.3.0",
     "memory-cache": "^0.2.0",
